@@ -11,7 +11,7 @@
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
+      <!--[if lt IE 9]>
       <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
     <![endif]-->
@@ -25,12 +25,27 @@
           <ul class="nav nav-pills pull-right">
             <li role="presentation" class="active"><a href="#">Home</a></li>
             <li role="presentation"><a href="#">About</a></li>
-            <li role="presentation"><a href="#">Contact</a></li>
+            {% if current_user.is_authenticated %}
+              <li role="presentation"><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% else %}
+              <li role="presentation"><a href="{{ url_for('login') }}">Login</a></li>
+            {% endif %}
+            
           </ul>
         </nav>
         <h3 class="text-muted">Toilter</h3>
       </div>
-
+          {% with messages = get_flashed_messages() %}          
+            {% if messages %}
+            <div class="alert alert-warning">
+              <ul class="flashes">
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
+          {% endwith %}
         <div class="row">
           {% block content %}
           {% endblock %}

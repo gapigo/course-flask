@@ -1,11 +1,17 @@
 # from email.policy import default
 from distutils.log import Log
-from app import app
-from flask import render_template
 
-from app import db
+from flask_login import login_user, logout_user
+from app import app, login_manager, db
+from flask import flash, redirect, render_template, url_for
+
 from app.models.tables import User
 from app.models.forms import LoginForm
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.filter_by(id=id).first()
+
 
 @app.route("/index")
 @app.route("/")
@@ -17,12 +23,26 @@ def index():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        print(form.username.data)
-        print(form.password.data)
+        user = User.query.filter_by(username=form.username.data).first()
+        print(user)
+        if user and user.password == form.password.data:
+            login_user(user)
+            flash("Logged in.")
+            return redirect(url_for("index"))
+        else:
+            if user:
+                flash("Password and username don't match")
+            else:
+                flash("User doesn't exist")
     else:
-        print(form.errors)
+        flash("Invalid login.")
     return render_template('login_form.html', form=form)
 
+@app.route("/logout")
+def logout():
+    logout_user()
+    flash("Logged out.")
+    return redirect(url_for("index"))
 
 
 @app.route('/teste/<info>')
